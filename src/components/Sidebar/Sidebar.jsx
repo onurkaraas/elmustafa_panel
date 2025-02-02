@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.css';
-import { FiLogOut } from 'react-icons/fi';
+import { FiLogOut, FiMenu } from 'react-icons/fi';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 
@@ -18,42 +18,55 @@ const COLORS = {
 
 function Sidebar() {
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const isActive = path => {
     return location.pathname === path ? 'nav-link active' : 'nav-link';
   };
+
   const handleSignOut = () => {
     signOut(auth);
   };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="sidebar">
-      <div className="sidebar-content">
-        <div className="logo-container">
-          <img src="/logo.png" alt="El Mustafa TV" />
-        </div>
-        <nav className="sidebar-nav">
-          <Link to="/" className={isActive('/')}>
-            Kontrol Paneli
-          </Link>
-          <Link to="/live-streams" className={isActive('/live-streams')}>
-            Canlı Yayınlar
-          </Link>
-          <Link to="/content-library" className={isActive('/content-library')}>
-            İçerik Kütüphanesi
-          </Link>
-          {/* <Link to="/analytics" className={isActive('/analytics')}>
-            Analitik
-          </Link> */}
-          <Link to="/settings" className={isActive('/settings')}>
-            Ayarlar
-          </Link>
-        </nav>
-      </div>
-      <button onClick={handleSignOut} className="sign-out-btn">
-        <FiLogOut className="sign-out-icon" />
-        <span>Sign Out</span>
+    <>
+      <button className="sidebar-toggle" onClick={toggleSidebar}>
+        <FiMenu />
       </button>
-    </div>
+
+      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-content">
+          <div className="logo-container">
+            <img src="/logo.png" alt="El Mustafa TV" />
+          </div>
+          <nav className="sidebar-nav">
+            <Link to="/" className={isActive('/')}>
+              Kontrol Paneli
+            </Link>
+            <Link to="/live-streams" className={isActive('/live-streams')}>
+              Canlı Yayınlar
+            </Link>
+            <Link to="/content-library" className={isActive('/content-library')}>
+              İçerik Kütüphanesi
+            </Link>
+            {/* <Link to="/analytics" className={isActive('/analytics')}>
+              Analitik
+            </Link> */}
+            <Link to="/settings" className={isActive('/settings')}>
+              Ayarlar
+            </Link>
+          </nav>
+        </div>
+        <button onClick={handleSignOut} className="sign-out-btn">
+          <FiLogOut className="sign-out-icon" />
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </>
   );
 }
 

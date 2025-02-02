@@ -197,7 +197,7 @@ function ContentLibrary() {
         <h1 className="page-title">İçerik Kütüphanesi</h1>
         <div className="header-actions">
           <input type="search" placeholder="İçerik ara..." className="search-input" />
-          <button className="primary-btn" onClick={() => setIsUploadModalOpen(true)}>
+          <button className="primary-btn upload-btn" onClick={() => setIsUploadModalOpen(true)}>
             Video Yükle
           </button>
         </div>
@@ -387,23 +387,28 @@ function ContentLibrary() {
       )}
 
       <div className="content-filters">
-        <select
-          className="filter-select"
-          value={selectedCategory}
-          onChange={e => setSelectedCategory(e.target.value)}>
-          {categories.map(category => (
-            <option key={category.value} value={category.value}>
-              {category.label}
-            </option>
-          ))}
-        </select>
-        <select className="filter-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-          {sortOptions.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <div className="filter-group">
+          <select
+            className="filter-select"
+            value={selectedCategory}
+            onChange={e => setSelectedCategory(e.target.value)}>
+            {categories.map(category => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
+          </select>
+          <select
+            className="filter-select"
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}>
+            {sortOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="content-grid">
@@ -430,16 +435,18 @@ function ContentLibrary() {
                 <p className="content-description">{content.description}</p>
                 <div className="content-meta">
                   <span>{content.views || 0} görüntülenme</span>
-                  <span>•</span>
+                  <span className="dot">•</span>
                   <span>{new Date(content.date).toLocaleDateString('tr-TR')}</span>
                 </div>
               </div>
               <div className="content-actions">
-                <button className="action-btn" onClick={() => handleEditClick(content)}>
+                <button className="action-btn edit-btn" onClick={() => handleEditClick(content)}>
                   Düzenle
                 </button>
                 <button
-                  className={`action-btn ${content.status === 'draft' ? 'publish-btn' : 'unpublish-btn'}`}
+                  className={`action-btn ${
+                    content.status === 'draft' ? 'publish-btn' : 'unpublish-btn'
+                  }`}
                   onClick={() => handleStatusToggle(content)}>
                   {content.status === 'draft' ? 'Yayınla' : 'Yayından Kaldır'}
                 </button>
