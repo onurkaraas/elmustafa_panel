@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './ContentLibrary.css';
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  query,
+  orderBy,
+  doc,
+  updateDoc,
+} from 'firebase/firestore';
 import { db } from '../../firebase/config'; // Make sure you have this firebase config file
 
 function ContentLibrary() {
@@ -17,6 +26,8 @@ function ContentLibrary() {
     videoType: 'youtube',
     thumbnail: null,
   });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingVideo, setEditingVideo] = useState(null);
 
   const categories = [
     { value: 'all', label: 'Tüm Kategoriler' },
@@ -123,6 +134,60 @@ function ContentLibrary() {
     } catch (error) {
       console.error('Error adding video:', error);
       alert('Video kaydedilirken bir hata oluştu.');
+    }
+  };
+
+  const handleEditClick = video => {
+    setEditingVideo(video);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async e => {
+    e.preventDefault();
+    try {
+      const videoRef = doc(db, 'videos', editingVideo.id);
+      const videoData = {
+        title: editingVideo.title,
+        category: editingVideo.category,
+        description: editingVideo.description,
+        videoUrl: editingVideo.videoUrl,
+        videoType: editingVideo.videoType,
+      };
+
+      await updateDoc(videoRef, videoData);
+      await fetchVideos();
+
+      setIsEditModalOpen(false);
+      setEditingVideo(null);
+      alert('Video başarıyla güncellendi!');
+    } catch (error) {
+      console.error('Error updating video:', error);
+      alert('Video güncellenirken bir hata oluştu.');
+    }
+  };
+
+  const handleEditInputChange = e => {
+    const { name, value } = e.target;
+    setEditingVideo(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleStatusToggle = async video => {
+    try {
+      const videoRef = doc(db, 'videos', video.id);
+      const newStatus = video.status === 'draft' ? 'published' : 'draft';
+
+      await updateDoc(videoRef, {
+        status: newStatus,
+      });
+
+      await fetchVideos();
+      alert(newStatus === 'published' ? 'Video yayınlandı!' : 'Video yayından kaldırıldı!');
+    } catch (error) {
+      console.error('Error updating video status:', error);
+      alert('Video durumu güncellenirken bir hata oluştu.');
     }
   };
 
@@ -235,6 +300,92 @@ function ContentLibrary() {
         </div>
       )}
 
+      {/* Edit Modal */}
+      {isEditModalOpen && editingVideo && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Video Düzenle</h2>
+            <form onSubmit={handleEditSubmit}>
+              <div className="form-group">
+                <label htmlFor="edit-title">Video Başlığı</label>
+                <input
+                  type="text"
+                  id="edit-title"
+                  name="title"
+                  value={editingVideo.title}
+                  onChange={handleEditInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-videoType">Video Platformu</label>
+                <select
+                  id="edit-videoType"
+                  name="videoType"
+                  value={editingVideo.videoType}
+                  onChange={handleEditInputChange}>
+                  {videoTypes.map(type => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-videoUrl">Video URL</label>
+                <input
+                  type="url"
+                  id="edit-videoUrl"
+                  name="videoUrl"
+                  value={editingVideo.videoUrl}
+                  onChange={handleEditInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-category">Kategori</label>
+                <select
+                  id="edit-category"
+                  name="category"
+                  value={editingVideo.category}
+                  onChange={handleEditInputChange}>
+                  {categories
+                    .filter(cat => cat.value !== 'all')
+                    .map(category => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-description">Açıklama</label>
+                <textarea
+                  id="edit-description"
+                  name="description"
+                  value={editingVideo.description}
+                  onChange={handleEditInputChange}
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setEditingVideo(null);
+                  }}>
+                  İptal
+                </button>
+                <button type="submit" className="primary-btn">
+                  Kaydet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="content-filters">
         <select
           className="filter-select"
@@ -284,8 +435,12 @@ function ContentLibrary() {
                 </div>
               </div>
               <div className="content-actions">
-                <button className="action-btn">Düzenle</button>
-                <button className="action-btn">
+                <button className="action-btn" onClick={() => handleEditClick(content)}>
+                  Düzenle
+                </button>
+                <button
+                  className={`action-btn ${content.status === 'draft' ? 'publish-btn' : 'unpublish-btn'}`}
+                  onClick={() => handleStatusToggle(content)}>
                   {content.status === 'draft' ? 'Yayınla' : 'Yayından Kaldır'}
                 </button>
               </div>

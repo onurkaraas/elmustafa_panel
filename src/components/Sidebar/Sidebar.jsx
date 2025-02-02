@@ -41,9 +41,9 @@ function Sidebar() {
           <Link to="/content-library" className={isActive('/content-library')}>
             İçerik Kütüphanesi
           </Link>
-          <Link to="/analytics" className={isActive('/analytics')}>
+          {/* <Link to="/analytics" className={isActive('/analytics')}>
             Analitik
-          </Link>
+          </Link> */}
           <Link to="/settings" className={isActive('/settings')}>
             Ayarlar
           </Link>

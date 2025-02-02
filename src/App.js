@@ -44,7 +44,7 @@ function App() {
             path="/content-library"
             element={user ? <ContentLibrary /> : <Navigate to="/login" />}
           />
-          <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
+          {/* <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} /> */}
           <Route path="/settings" element={user ? <Settings /> : <Navigate to="/login" />} />
           <Route path="/tv-app" element={user ? <TVStreamView /> : <Navigate to="/login" />} />
           <Route

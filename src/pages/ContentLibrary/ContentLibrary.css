@@ -209,3 +209,21 @@
   background: #f5f5f5;
   border-radius: 8px;
 }
+
+.publish-btn {
+  background-color: #4caf50 !important; /* Green */
+  color: white !important;
+}
+
+.unpublish-btn {
+  background-color: #f44336 !important; /* Red */
+  color: white !important;
+}
+
+.publish-btn:hover {
+  background-color: #45a049 !important; /* Darker green */
+}
+
+.unpublish-btn:hover {
+  background-color: #da190b !important; /* Darker red */
+}
