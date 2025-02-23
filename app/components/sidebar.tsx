@@ -97,13 +97,7 @@ export default function Sidebar() {
 
         {/* Logo */}
         <div className="p-3">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-21%20at%2015.16.55-QavtMc34ujg3Y03apDXOfHJhg7riDS.png"
-            alt="El Mustafa Eğitim"
-            width={120}
-            height={48}
-            className="w-full"
-          />
+          <Image src="/elmus.png" alt="El Mustafa Eğitim" width={80} height={48} />
         </div>
 
         {/* Navigation */}

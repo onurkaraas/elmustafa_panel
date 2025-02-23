@@ -1,84 +1,83 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Search } from "lucide-react"
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore"
-import { db } from "./firebase/config"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import Sidebar from "./components/sidebar"
-import { useAuth } from "./contexts/AuthContext"
-import VideoCard from "./components/video-card"
-import { EditVideoModal, type VideoData } from "./components/edit-video-modal"
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db } from './firebase/config';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import Sidebar from './components/sidebar';
+import { useAuth } from './contexts/AuthContext';
+import VideoCard from './components/video-card';
+import { EditVideoModal, type VideoData } from './components/edit-video-modal';
 
 const emptyVideoData: VideoData = {
-  title: "",
-  description: "",
-  category: "",
-  videoUrl: "",
-  videoType: "youtube",
+  title: '',
+  description: '',
+  category: '',
+  videoUrl: '',
+  videoType: 'youtube',
   thumbnail: null,
-  status: "draft",
+  status: 'draft',
   views: 0,
-}
+};
 
 export default function Home() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-  const [videos, setVideos] = useState<VideoData[]>([])
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingVideo, setEditingVideo] = useState<VideoData | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [videos, setVideos] = useState<VideoData[]>([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<VideoData | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login")
+      router.push('/login');
     } else if (user) {
-      fetchVideos()
+      fetchVideos();
     }
-  }, [user, loading, router])
+  }, [user, loading, router]);
 
   const fetchVideos = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "videos"))
-      const videosList: VideoData[] = []
-      querySnapshot.forEach((doc) => {
-        videosList.push({ id: doc.id, ...doc.data() } as VideoData)
-      })
-      setVideos(videosList)
+      const querySnapshot = await getDocs(collection(db, 'videos'));
+      const videosList: VideoData[] = [];
+      querySnapshot.forEach(doc => {
+        videosList.push({ id: doc.id, ...doc.data() } as VideoData);
+      });
+      setVideos(videosList);
     } catch (error) {
-      console.error("Error fetching videos:", error)
+      console.error('Error fetching videos:', error);
     }
-  }
+  };
 
   const handleEditVideo = (video: VideoData) => {
-    setEditingVideo(video)
-    setIsEditModalOpen(true)
-  }
+    setEditingVideo(video);
+    setIsEditModalOpen(true);
+  };
 
   const handleRemoveVideo = async (id: string) => {
     try {
-      const videoRef = doc(db, "videos", id)
-      await deleteDoc(videoRef)
-      setVideos(videos.filter((video) => video.id !== id))
+      const videoRef = doc(db, 'videos', id);
+      await deleteDoc(videoRef);
+      setVideos(videos.filter(video => video.id !== id));
     } catch (error) {
-      console.error("Error removing video:", error)
+      console.error('Error removing video:', error);
     }
-  }
+  };
 
   const filteredVideos = videos.filter(
-    (video) =>
+    video =>
       video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       video.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       video.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  );
 
   const handleSaveVideo = async (videoData: VideoData) => {
     try {
       if (editingVideo && editingVideo.id) {
         // Update existing video
-        const videoRef = doc(db, "videos", editingVideo.id)
+        const videoRef = doc(db, 'videos', editingVideo.id);
         await updateDoc(videoRef, {
           title: videoData.title,
           description: videoData.description,
@@ -87,34 +86,34 @@ export default function Home() {
           videoType: videoData.videoType,
           thumbnail: videoData.thumbnail,
           status: videoData.status,
-        })
+        });
 
         // Update local state
-        setVideos(videos.map((v) => (v.id === editingVideo.id ? { ...v, ...videoData } : v)))
+        setVideos(videos.map(v => (v.id === editingVideo.id ? { ...v, ...videoData } : v)));
       } else {
         // Add new video
         const newVideo = {
           ...videoData,
           views: 0,
           createdAt: new Date(),
-        }
-        const docRef = await addDoc(collection(db, "videos"), newVideo)
-        setVideos([...videos, { id: docRef.id, ...newVideo }])
+        };
+        const docRef = await addDoc(collection(db, 'videos'), newVideo);
+        setVideos([...videos, { id: docRef.id, ...newVideo }]);
       }
 
-      setIsEditModalOpen(false)
-      setEditingVideo(null)
+      setIsEditModalOpen(false);
+      setEditingVideo(null);
     } catch (error) {
-      console.error("Error saving video:", error)
+      console.error('Error saving video:', error);
     }
-  }
+  };
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
   return (
@@ -130,17 +129,16 @@ export default function Home() {
                   placeholder="İçerik ara..."
                   className="pl-9 w-full sm:w-[300px]"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                 />
                 <Search className="absolute left-2.5 top-2.5 h-5 w-5 text-muted-foreground" />
               </div>
               <Button
                 className="bg-[#f4a261] hover:bg-[#e76f51] text-white"
                 onClick={() => {
-                  setEditingVideo(emptyVideoData)
-                  setIsEditModalOpen(true)
-                }}
-              >
+                  setEditingVideo(emptyVideoData);
+                  setIsEditModalOpen(true);
+                }}>
                 Video Yükle
               </Button>
             </div>
@@ -148,7 +146,7 @@ export default function Home() {
 
           {/* Video Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredVideos.map((video) => (
+            {filteredVideos.map(video => (
               <VideoCard
                 key={video.id}
                 title={video.title}
@@ -169,8 +167,8 @@ export default function Home() {
           <EditVideoModal
             isOpen={isEditModalOpen}
             onClose={() => {
-              setIsEditModalOpen(false)
-              setEditingVideo(null)
+              setIsEditModalOpen(false);
+              setEditingVideo(null);
             }}
             onSave={handleSaveVideo}
             initialData={editingVideo || emptyVideoData}
@@ -178,6 +176,5 @@ export default function Home() {
         </div>
       </main>
     </div>
-  )
+  );
 }
-
