@@ -1,11 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LogOut, LayoutDashboard, Video, Library, Settings, Menu, FolderTree } from 'lucide-react';
+import {
+  LogOut,
+  LayoutDashboard,
+  Video,
+  Library,
+  Settings,
+  Menu,
+  FolderTree,
+  Users,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
 const menuItems = [
   {
@@ -28,11 +39,26 @@ const menuItems = [
     icon: FolderTree,
     href: '/kategoriler',
   },
+  {
+    title: 'Kullanıcılar',
+    icon: Users,
+    href: '/users',
+  },
 ];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   useEffect(() => {
     const toggleSidebar = () => setIsOpen(!isOpen);
@@ -122,6 +148,7 @@ export default function Sidebar() {
         <div className="p-3 border-t border-[#2d6a4f] w-full mt-auto">
           <Button
             variant="ghost"
+            onClick={handleSignOut}
             className="w-full justify-start text-white hover:bg-[#2d6a4f]/50 text-base py-2">
             <LogOut className="w-5 h-5 mr-2" />
             Sign Out

@@ -31,7 +31,7 @@ export default function UsersPage() {
       <main className="flex-1 p-4 md:p-6">
         <div className="max-w-[1400px] mx-auto space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl md:text-3xl font-bold text-[#1a237e]">Kullanıcı Yönetimi</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-[#1a237e]">User Management</h1>
             <Button
               className="md:hidden"
               onClick={() => document.dispatchEvent(new Event('toggleSidebar'))}>
